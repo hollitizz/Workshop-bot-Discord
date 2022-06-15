@@ -8,11 +8,11 @@ Dans ce Workshop, nous allons voir étape par étape comment créer un bot en sl
 
 ### a. Installer python
 
-```bash
-https://www.makeuseof.com/install-python-ubuntu/
 
-https://citizix.com/how-to-install-python-2-and-python-3-on-fedora-35/
-```
+    https://www.makeuseof.com/install-python-ubuntu/
+
+    https://citizix.com/how-to-install-python-2-and-python-3-on-fedora-35/
+
 Si vous n'y arrivez pas venez nous voir !
 
 ### b. Installer [discord.py](https://discordpy.readthedocs.io/en/latest/)

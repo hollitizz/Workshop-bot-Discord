@@ -89,13 +89,13 @@ Vous avez dû remarquer qu'une ligne est restée commentée dans le code, essaye
 Dans cette partie, vous allez devoir recoder les exemples ci-dessous :
 
 Commençons par la commande `hello` qui vous répond `Hello !` (ça ressemble vraiment beaucoup à la commande `ping`).
-Voici le résultat attendu :
+Voici le résultat attendu :  
 ![](https://cdn.discordapp.com/attachments/983394818078154832/986609462641053746/unknown.png)
 
 Bonne chance !
 
 Nous allons maintenant créer une commande `roll` qui va générer un nombre aléatoire entre deux nombres passés en arguments. Le résultat attendu est :  
-pour celui là, je vous conseille de jeter un oeuil à ce que contient ctx (Context) passé en argument [ici](https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?highlight=commands%20context#discord.ext.commands.Context)
+pour celui là, je vous conseille de jeter un oeuil à ce que contient ctx (Context) passé en argument [ici](https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?highlight=commands%20context#discord.ext.commands.Context)  
 
 ![](https://cdn.discordapp.com/attachments/976184633869873205/986632820652908544/unknown.png)
 

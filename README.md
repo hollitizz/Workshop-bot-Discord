@@ -123,6 +123,129 @@ await bot.tree.sync(guild=discord.Object(id=self.guild_id))
 
 En prenant exemple sur les fonctions, déjà, crée, vous pouvez essayer d'implémenter de nouvelles commandes, vous pouvez venir nous voir si vous doutez de leur réalisation.
 
-Merci d'avoir pris la peine d'arriver jusqu'ici, nous espérons que vous avez apprécié ce Workshop.
+## V. Création d'un bot music avec un pannel de commande
 
-Dans le Workshop de cet Après-midi, vous reprendrez sur un équivalent du template afin de créer un mini rpg avec des boutons et une base de donées en Json.
+
+Dans cette partie, on va voir, premièrement comment créer un bot music basic avec les commandes `[play, pause, resume, skip, queue, clear_queue]`.
+
+Vous allez avoir besoin de quelques installations supplémentaires :  
+
+```bash
+sudo pip install validators # pour vérifier si un url est valide
+sudo pip install youtube_dl # pour recuperer une vidéo youtube
+sudo dnf -y install ffmpeg  # pour que votre bot puisse lire des musiques
+```
+
+Puis on verra comment generer un embed avec des boutons pour les commandes principales comme ci-dessous:
+
+![](https://cdn.discordapp.com/attachments/976184633869873205/987154526924603452/unknown.png)
+
+# a. La commande play
+
+On va commencer par créer un nouveau cog pour `Music` et l'ajouter au fichier `__ini__.py`
+
+Maintenant, il faut créer la fonction play, commencez par vérifier que l'utilisateur est bien connecté à un channel vocal, puis que le bot n'est pas occupé dans un autre channel.
+
+Dans le cas où le bot n'est pas encore connecté à un channel vocal, il faut le connecter.
+
+Passé ces tests, on va verifier que l'url passée en argument est valide.
+
+Il faut maintenant récupérer la vidéo youtube à partir de l'url grâce a youtube_dl.
+
+Vous pouver utilisez le code ci dessous pour charger la vidéo :
+
+```python
+import youtube_dl
+
+
+class Video:
+    def __init__(self):
+        self.ytdl = youtube_dl.YoutubeDL({'format': 'bestaudio'})
+        self.queue = []
+        self.stream_queue = []
+        self.is_playing = False
+        self.is_paused = False
+
+    def addUrlToQueue(self, url: str):
+        video = self.ytdl.extract_info(url, download=False)
+        video_format = video['formats'][0]
+        self.queue.append(video['title'])
+        self.stream_queue.append(video_format['url'])
+```
+
+et celle-ci pour lancer la musique (noubliez pas de mettre une gestion d'erreur si la musique est déjà en cours de lecture):
+
+```python
+def player(self, ctx: Interaction, client: VoiceProtocol):
+    FFMPEG_OPTIONS = {
+        "before_options" : "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+        "options": "-vn"
+    }
+    source = PCMVolumeTransformer(FFmpegPCMAudio(self.stream_url, **FFMPEG_OPTIONS))
+
+    def next(_):
+        if self.queue:
+            self.playing_song = self.queue.pop(0)
+            self.stream_url = self.stream_queue.pop(0)
+            player(self, ctx, client)
+        else:
+            self.is_playing = False
+            asyncio.run_coroutine_threadsafe(client.disconnect(), self.loop)
+
+    client.play(source, after=next)
+    self.is_playing = True
+```
+
+Vous devriez maintenant être en mesure de lancer une musique.
+
+### b. Les commandes secondaires
+
+Il vous faut maintenant créer les commandes secondaires :  
+`pause`, `resume`, `skip`, `queue`, `clean_queue` et `leave`.
+
+`queue` doit afficher la musique en cours de lecture, puis celles dans la file d'attente (de préférence dans un [embed](https://cog-creators.github.io/discord-embed-sandbox/) pour vous facilité la vie lors de la création du command pannel).
+
+`clean_queue` doit supprimer la musique correspondant à l'index passé en argument ou tout les éléments de la file d'attente si aucun index n'est passé.
+
+### c. Le command pannel
+
+On va maintenant pouvoir créer la commande `command_pannel` qui va nous afficher un pannel avec un embed contenant les commandes principales (`pause`, `resume`, `skip`, `leave`).
+
+![](https://cdn.discordapp.com/attachments/976184633869873205/987154526706466856/unknown.png)
+
+Afin d'ajouter des boutons à l'embed, comme sur l'exemple ci-dessus, il faut utiliser le paramètre `view`, qui va prendre un objet héritant de `discord.ui.View`.
+Vous pouvez utiliser le code ci-dessous pour vos boutons :
+
+A vous d'implémenter les menquants en prenant exemple sur les deux boutons ci-dessous :
+
+```python
+import discord
+from discord import Interaction
+
+
+from commands.music.play import play
+from commands.music.skip import skip
+from commands.music.pause import pause
+from commands.music.resume import resume
+from commands.music.leave import leave
+
+
+class commandPannelButtons(discord.ui.View):
+    def __init__(self, music):
+        super().__init__()
+        self.music = music
+
+    @discord.ui.button(emoji="⏸️", label="Pause", style=discord.ButtonStyle.primary)
+    async def button1(self, ctx: Interaction, button: discord.ui.Button):
+        await pause(self.music, ctx)
+
+    @discord.ui.button(emoji="▶️", label="Resume", style=discord.ButtonStyle.primary)
+    async def button2(self, ctx: Interaction, button: discord.ui.Button):
+        await resume(self.music, ctx)
+```
+
+Normalement tout devrais désormais fonctionner si ce n'est pas le cas demandés de l'aide :).
+#
+Merci d'avoir pris la peine d'arriver jusqu'ici, si jamais vous voulez voir la version finie du bot musique vous pouvez venir nous le demander, nous espérons que vous avez apprécié ce Workshop.
+
+Dans le Workshop de cet Après-midi, vous reprendrez sur un équivalent du template afin de créer un mini rpg sur discord avec des boutons et une base de donées en Json.
